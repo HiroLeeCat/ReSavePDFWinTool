@@ -173,6 +173,7 @@ namespace ReSavePDFWinTool
                     {
                         //gMsg = string.Format("檢查資料夾路徑 {0} start\r\n", pFolderPath);
                         gMsg = string.Format("檢查資料夾路徑：{0} \r\n", pFolderPath);
+    					WriteLog(gMsg);
                         txtResult.Text += gMsg;
 
                         prsBar.Minimum = 0;
@@ -193,6 +194,8 @@ namespace ReSavePDFWinTool
                                     }
                                     else
                                     {
+										gMsg = string.Format("跳過{0}檔 \r\n", aryFileInfo[i].ToString());
+										WriteLog(gMsg);
                                         ++prsBar.Value;
                                         continue;
                                     }
@@ -227,10 +230,13 @@ namespace ReSavePDFWinTool
 
         public void CheckPDFInFile(FileInfo pFile)
         {
-            //gMsg = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") +
+            //gMsg = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff") +
             //"↓開始檢查pdf檔案【" + pFile.FullName + "】↓" + "\r\n";
 	        //txtResult.Text += gMsg;
             //WriteLog(gMsg);
+
+            gMsg = "檢查pdf檔案【" + pFile.FullName + "】";
+            WriteLog(gMsg);
 
             bool bMustResave = false;
             PdfSharp.Pdf.PdfDocument sharpDoc = new PdfSharp.Pdf.PdfDocument();
@@ -255,7 +261,10 @@ namespace ReSavePDFWinTool
                 sharpDoc.Close();
                 sharpDoc = null;
             }
-            if (bMustResave)
+            //2025/03/12;1.0.0.2;挑選檔案模式，就強制用iText執行另存↓
+            //if (bMustResave)
+            if (bMustResave || rbnFiles.Checked)
+            //2025/03/12;1.0.0.2;挑選檔案模式，就強制用iText執行另存↑
             {
                 ReSavePDF(pFile);
             }
@@ -434,7 +443,8 @@ namespace ReSavePDFWinTool
                     //寫入檔案
                     using (StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8))
                     {
-                        sw.WriteLine(DateTime.Now);
+                        //sw.WriteLine(DateTime.Now);
+                        sw.WriteLine(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff"));
                         sw.WriteLine(pLogs);
                         sw.Close();
                     }
@@ -473,7 +483,8 @@ namespace ReSavePDFWinTool
 
 		#region 不開啟WinForm工具執行
 		public void RunBatResavePDF() {
-			gMsg = "RunType參數【" + tCommon.RunType + "】, FolderOrFilesPath參數【" + tCommon.FolderOrFilesPath + "】, IsHaveSub參數【" + tCommon.IsHaveSub.ToString() + "】";
+			gMsg = "RunType參數【" + tCommon.RunType + "】, FolderOrFilesPath參數【" + tCommon.FolderOrFilesPath + "】, IsHaveSub參數【" + tCommon.IsHaveSub.ToString() + "】\r\n";
+			gMsg += string.Format("檢查{0}天內新增/修改的pdf檔 \r\n", gLastModifiedDays);
     		WriteLog(gMsg);
 			if((tCommon.RunType!="P" && tCommon.RunType!="F") || tCommon.FolderOrFilesPath==""){
 				gMsg = "參數錯誤，無法執行！";
